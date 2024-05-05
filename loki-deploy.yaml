@@ -1,0 +1,51 @@
+# loki-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-config
+data:
+  loki-config.yaml: |
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+
+# loki-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      containers:
+        - name: loki
+          image: grafana/loki:latest
+          ports:
+            - containerPort: 3100
+          volumeMounts:
+            - name: loki-config-volume
+              mountPath: /etc/loki
+      volumes:
+        - name: loki-config-volume
+          configMap:
+            name: loki-config
+
+# loki-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: loki
+  ports:
+    - protocol: TCP
+      port: 3100

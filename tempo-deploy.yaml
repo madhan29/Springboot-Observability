@@ -1,0 +1,33 @@
+# tempo-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tempo
+  template:
+    metadata:
+      labels:
+        app: tempo
+    spec:
+      containers:
+        - name: tempo
+          image: grafana/tempo:latest
+          ports:
+            - containerPort: 9411
+
+# tempo-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: tempo
+  ports:
+    - protocol: TCP
+      port: 9411
